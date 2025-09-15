@@ -1,0 +1,52 @@
+{
+  "9A": {
+    "Dushanba": [
+      "Kelajak soati 08:00 - 08:45",
+      "Kimyo 08:50 - 09:35",
+      "Rus tili 09:40 - 10:25",
+      "Algebra 10:30 - 11:15",
+      "Adabiyot 11:30 - 12:15",
+      "Biologiya 12:20 - 13:05"
+    ],
+    "Seshanba": [
+      "Fizika 08:00 - 08:45",
+      "Geografiya 08:50 - 09:35",
+      "Tarbiya 09:40 - 10:25",
+      "Biologiya 10:30 - 11:15",
+      "Algebra 11:30 - 12:15",
+      "Geometriya 12:20 - 13:05"
+    ],
+    "Chorshanba": [
+      "Jismoniy tarbiya 08:00 - 08:45",
+      "O'zbekiston tarixi 08:50 - 09:35",
+      "Ingliz tili 09:40 - 10:25",
+      "Ona tili 10:30 - 11:15",
+      "Adabiyot 11:30 - 12:15",
+      "Jismoniy tarbiya 12:20 - 13:05"
+    ],
+    "Payshanba": [
+      "Biologiya 08:00 - 08:45",
+      "Adabiyot 08:50 - 09:35",
+      "Ingliz tili 09:40 - 10:25",
+      "Ona tili 10:30 - 11:15",
+      "Jahon tarixi 11:30 - 12:15",
+      "Chizmachilik/texnalogiya 12:20 - 13:05"
+    ],
+    "Juma": [
+      "Algebra 08:00 - 08:45",
+      "Kimyo 08:50 - 09:35",
+      "Informmatika 09:40 - 10:25",
+      "Rus tili 10:30 - 11:15",
+      "Geometriya 11:30 - 12:15",
+      "Fizika 12:20 - 13:05"
+    ],
+    "Shanba": [
+      "Informmatika 08:00 - 08:45",
+      "Ingliz tili 08:50 - 09:35",
+      "O'zbekiston tarixi 09:40 - 10:25",
+      "Kimyo 10:30 - 11:15",
+      "Geografiya/Iqtisodiyot 11:30 - 12:15",
+      "Huquq 12:20 - 13:05"
+    ]
+  }
+}
