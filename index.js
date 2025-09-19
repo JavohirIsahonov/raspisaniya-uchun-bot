@@ -115,18 +115,7 @@ function formatScheduleSimple(scheduleData) {
     
     let message = `📅 ${scheduleData.day} kuni darslari:\n\n`;
     scheduleData.subjects.forEach((subject, index) => {
-        // Fan nomini to'liq olish (faqat vaqtni olib tashlash)
-        const parts = subject.split(' ');
-        const timeIndex = parts.findIndex(part => part.includes(':'));
-        
-        let subjectName;
-        if (timeIndex !== -1) {
-            subjectName = parts.slice(0, timeIndex).join(' ');
-        } else {
-            subjectName = subject;
-        }
-        
-        message += `${index + 1}. ${subjectName}\n`;
+        message += `${index + 1}. ${subject}\n`;
     });
     
     return message;
