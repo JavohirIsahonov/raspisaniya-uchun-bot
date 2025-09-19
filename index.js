@@ -71,20 +71,7 @@ function isTimeForTomorrow() {
     return hour >= 13 && hour <= 23; // 13:05 - 23:59
 }
 
-// Muhim darslarni tekshirish
-function getImportantSubjects() {
-    return ['Algebra', 'Geometriya', 'Fizika', 'Kimyo', 'Biologiya', 'Informatika', 'Ingliz tili'];
-}
 
-function hasImportantClasses(scheduleData) {
-    if (!scheduleData || !scheduleData.subjects) return false;
-    
-    const importantSubjects = getImportantSubjects();
-    return scheduleData.subjects.some(subject => {
-        const subjectName = subject.split(' ')[0]; // Faqat fan nomini olish
-        return importantSubjects.includes(subjectName);
-    });
-}
 
 function getDayName(dayIndex) {
     const days = ['Yakshanba', 'Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba'];
@@ -128,48 +115,24 @@ function formatScheduleSimple(scheduleData) {
     
     let message = `📅 ${scheduleData.day} kuni darslari:\n\n`;
     scheduleData.subjects.forEach((subject, index) => {
-        // Faqat fan nomini olish
-        const subjectName = subject.split(' ')[0];
+        // Fan nomini to'liq olish (faqat vaqtni olib tashlash)
+        const parts = subject.split(' ');
+        const timeIndex = parts.findIndex(part => part.includes(':'));
+        
+        let subjectName;
+        if (timeIndex !== -1) {
+            subjectName = parts.slice(0, timeIndex).join(' ');
+        } else {
+            subjectName = subject;
+        }
+        
         message += `${index + 1}. ${subjectName}\n`;
     });
     
     return message;
 }
 
-// Jadval formatini tayyorlash (vaqtlar bilan)
-function formatScheduleWithTimes(scheduleData) {
-    if (!scheduleData) {
-        return 'Bugun dars yo\'q! 🎉';
-    }
-    
-    let message = `📅 ${scheduleData.day} kuni darslari:\n\n`;
-    scheduleData.subjects.forEach((subject, index) => {
-        // Fanning nomi va vaqtini alohida ajratish
-        const parts = subject.split(' ');
-        const timeIndex = parts.findIndex(part => part.includes(':'));
-        
-        if (timeIndex !== -1) {
-            const subjectName = parts.slice(0, timeIndex).join(' ');
-            const timeSlot = parts.slice(timeIndex).join(' ');
-            message += `${index + 1}. ${subjectName}\n   ⏰ ${timeSlot}\n\n`;
-        } else {
-            message += `${index + 1}. ${subject}\n\n`;
-        }
-    });
-    
-    return message;
-}
 
-// Vaqtlarni ko'rish tugmasi
-function getViewTimesKeyboard(day) {
-    return {
-        reply_markup: {
-            inline_keyboard: [
-                [{ text: '⏰ Vaqtlarni ko\'rish', callback_data: `view_times_${day}` }]
-            ]
-        }
-    };
-}
 
 // /start buyrug'i
 bot.onText(/\/start/, (msg) => {
@@ -180,25 +143,28 @@ bot.onText(/\/start/, (msg) => {
     const existingUser = Object.values(users).find(user => user.chatId === chatId);
     
     if (existingUser) {
-        // Mavjud foydalanuvchi
-        bot.sendMessage(chatId, `Xush kelibsiz, ${existingUser.name}!`);
-        
+        // Mavjud foydalanuvchi - faqat jadval yuborish
         // Vaqtga qarab jadval yuborish
         if (isSchoolTimeForToday()) {
             // 03:00 - 09:00 oralig'ida bugungi jadval
             const todaySchedule = getTodaySchedule();
             if (todaySchedule) {
-                const scheduleMessage = '📚 Bugungi dars jadvali:\n\n' + formatScheduleSimple(todaySchedule);
-                const keyboard = getViewTimesKeyboard(todaySchedule.day);
-                bot.sendMessage(chatId, scheduleMessage, keyboard);
+                const scheduleMessage = `📚 ${existingUser.name}, bugungi dars jadvali:\n\n` + formatScheduleSimple(todaySchedule);
+                bot.sendMessage(chatId, scheduleMessage);
             }
         } else if (isTimeForTomorrow()) {
             // 13:05 - 23:59 oralig'ida ertangi jadval
             const tomorrowSchedule = getTomorrowSchedule();
             if (tomorrowSchedule) {
-                const scheduleMessage = '📅 Ertangi kun uchun dars jadvali:\n\n' + formatScheduleSimple(tomorrowSchedule);
-                const keyboard = getViewTimesKeyboard(tomorrowSchedule.day);
-                bot.sendMessage(chatId, scheduleMessage, keyboard);
+                const scheduleMessage = `📅 ${existingUser.name}, ertangi kun uchun dars jadvali:\n\n` + formatScheduleSimple(tomorrowSchedule);
+                bot.sendMessage(chatId, scheduleMessage);
+            }
+        } else {
+            // Oddiy vaqtda bugungi jadval
+            const todaySchedule = getTodaySchedule();
+            if (todaySchedule) {
+                const scheduleMessage = `📚 ${existingUser.name}, bugungi dars jadvali:\n\n` + formatScheduleSimple(todaySchedule);
+                bot.sendMessage(chatId, scheduleMessage);
             }
         }
     } else {
@@ -231,24 +197,21 @@ bot.on('message', (msg) => {
         if (isSchoolTimeForToday()) {
             const todaySchedule = getTodaySchedule();
             if (todaySchedule) {
-                const scheduleMessage = '📚 Bugungi dars jadvali:\n\n' + formatScheduleSimple(todaySchedule);
-                const keyboard = getViewTimesKeyboard(todaySchedule.day);
-                bot.sendMessage(chatId, scheduleMessage, keyboard);
+                const scheduleMessage = `📚 ${text}, bugungi dars jadvali:\n\n` + formatScheduleSimple(todaySchedule);
+                bot.sendMessage(chatId, scheduleMessage);
             }
         } else if (isTimeForTomorrow()) {
             const tomorrowSchedule = getTomorrowSchedule();
             if (tomorrowSchedule) {
-                const scheduleMessage = '📅 Ertangi kun uchun dars jadvali:\n\n' + formatScheduleSimple(tomorrowSchedule);
-                const keyboard = getViewTimesKeyboard(tomorrowSchedule.day);
-                bot.sendMessage(chatId, scheduleMessage, keyboard);
+                const scheduleMessage = `📅 ${text}, ertangi kun uchun dars jadvali:\n\n` + formatScheduleSimple(tomorrowSchedule);
+                bot.sendMessage(chatId, scheduleMessage);
             }
         } else {
             // Oddiy vaqtda bugungi jadval
             const todaySchedule = getTodaySchedule();
             if (todaySchedule) {
-                const scheduleMessage = formatScheduleSimple(todaySchedule);
-                const keyboard = getViewTimesKeyboard(todaySchedule.day);
-                bot.sendMessage(chatId, scheduleMessage, keyboard);
+                const scheduleMessage = `📚 ${text}, bugungi dars jadvali:\n\n` + formatScheduleSimple(todaySchedule);
+                bot.sendMessage(chatId, scheduleMessage);
             }
         }
     }
@@ -301,18 +264,6 @@ bot.on('callback_query', (callbackQuery) => {
             users[userId].editingDay = day;
             bot.sendMessage(chatId, message);
         }
-    } else if (data.startsWith('view_times_')) {
-        const day = data.replace('view_times_', '');
-        const schedule = loadSchedule();
-        
-        if (schedule['9A'] && schedule['9A'][day]) {
-            const scheduleData = {
-                day: day,
-                subjects: schedule['9A'][day]
-            };
-            const detailedMessage = formatScheduleWithTimes(scheduleData);
-            bot.sendMessage(chatId, detailedMessage);
-        }
     }
     
     bot.answerCallbackQuery(callbackQuery.id);
@@ -343,8 +294,7 @@ bot.on('message', (msg) => {
                 subjects: newSubjects
             };
             const simpleSchedule = formatScheduleSimple(updatedScheduleData);
-            const keyboard = getViewTimesKeyboard(day);
-            bot.sendMessage(chatId, `${day} kuni yangi jadvali:\n\n${simpleSchedule}`, keyboard);
+            bot.sendMessage(chatId, `${day} kuni yangi jadvali:\n\n${simpleSchedule}`);
         } else {
             bot.sendMessage(chatId, '❌ Jadvalni saqlashda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
         }
@@ -362,12 +312,11 @@ cron.schedule('30 6 * * *', () => {
     
     if (todaySchedule) {
         const message = '🌅 Xayrli tong! Bugungi dars jadvali:\n\n' + formatScheduleSimple(todaySchedule);
-        const keyboard = getViewTimesKeyboard(todaySchedule.day);
         
         // Barcha foydalanuvchilarga yuborish
         Object.values(users).forEach(user => {
             if (user.name && user.chatId) {
-                bot.sendMessage(user.chatId, message, keyboard);
+                bot.sendMessage(user.chatId, message);
             }
         });
     }
@@ -380,41 +329,23 @@ cron.schedule('0 19 * * *', () => {
     
     if (tomorrowSchedule) {
         const message = '🌙 Kechki salom! Ertangi kun uchun dars jadvali:\n\n' + formatScheduleSimple(tomorrowSchedule);
-        const keyboard = getViewTimesKeyboard(tomorrowSchedule.day);
         
         // Barcha foydalanuvchilarga yuborish
         Object.values(users).forEach(user => {
             if (user.name && user.chatId) {
-                bot.sendMessage(user.chatId, message, keyboard);
+                bot.sendMessage(user.chatId, message);
             }
         });
     }
 });
 
-// Muhim darslar haqida har 2 soatda eslatma (13:00 dan 23:00 gacha)
-cron.schedule('0 13,15,17,19,21,23 * * *', () => {
-    console.log('Muhim darslar eslatmasi tekshirilmoqda...');
+// Avtomatik jadval yuborish - har kuni 14:00 da ertangi jadval
+cron.schedule('0 14 * * *', () => {
+    console.log('14:00 da ertangi jadval yuborilmoqda...');
     const tomorrowSchedule = getTomorrowSchedule();
     
-    if (tomorrowSchedule && hasImportantClasses(tomorrowSchedule)) {
-        const importantSubjects = getImportantSubjects();
-        const tomorrowImportant = tomorrowSchedule.subjects.filter(subject => {
-            const subjectName = subject.split(' ')[0];
-            return importantSubjects.includes(subjectName);
-        });
-        
-        let message = '⚠️ Eslatma! Ertaga muhim darslaringiz bor:\n\n';
-        tomorrowImportant.forEach((subject, index) => {
-            const parts = subject.split(' ');
-            const timeIndex = parts.findIndex(part => part.includes(':'));
-            
-            if (timeIndex !== -1) {
-                const subjectName = parts.slice(0, timeIndex).join(' ');
-                const timeSlot = parts.slice(timeIndex).join(' ');
-                message += `📚 ${subjectName} - ${timeSlot}\n`;
-            }
-        });
-        message += '\n📝 Tayyorgarlik ko\'ring!';
+    if (tomorrowSchedule) {
+        const message = '📅 Ertangi kun uchun dars jadvali:\n\n' + formatScheduleSimple(tomorrowSchedule);
         
         // Barcha foydalanuvchilarga yuborish
         Object.values(users).forEach(user => {
