@@ -294,7 +294,7 @@ bot.on('message', (msg) => {
     }
 });
 
-// Avtomatik jadval yuborish - har kuni 06:30 da bugungi jadval
+// Avtomatik jadval yuborish - har kuni 06:30 da bugungi jadval (Toshkent vaqti bo'yicha)
 cron.schedule('30 6 * * *', () => {
     console.log('Ertalabki jadval yuborilmoqda...');
     const todaySchedule = getTodaySchedule();
@@ -309,6 +309,8 @@ cron.schedule('30 6 * * *', () => {
             }
         });
     }
+}, {
+    timezone: 'Asia/Tashkent'
 });
 
 // Avtomatik jadval yuborish - har kuni 19:00 da ertangi jadval
@@ -326,6 +328,8 @@ cron.schedule('0 19 * * *', () => {
             }
         });
     }
+}, {
+    timezone: 'Asia/Tashkent'
 });
 
 // Avtomatik jadval yuborish - har kuni 14:00 da ertangi jadval
@@ -343,6 +347,8 @@ cron.schedule('0 14 * * *', () => {
             }
         });
     }
+}, {
+    timezone: 'Asia/Tashkent'
 });
 
 console.log('Bot ishga tushdi! Foydalanuvchilar /start buyrug\'ini yuborishlari mumkin.');
