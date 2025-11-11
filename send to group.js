@@ -1,16 +1,12 @@
 const TelegramBot = require("node-telegram-bot-api");
 const readline = require("readline");
 
-// Sizning bot tokeningiz
 const token = "8234260460:AAGtMKfgmDt4Q7rFEOnT73F5fysa_tlgbxY";
 
-// Sizning guruh ID
 const chatId = "-1002971513569";
 
-// Bot yaratamiz
 const bot = new TelegramBot(token, { polling: false });
 
-// Terminaldan o‘qish uchun interface
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,

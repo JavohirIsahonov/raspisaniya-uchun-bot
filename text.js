@@ -2,16 +2,12 @@ const TelegramBot = require("node-telegram-bot-api");
 const fs = require("fs");
 const readline = require("readline");
 
-// Bot tokeningiz
 const token = "8234260460:AAGtMKfgmDt4Q7rFEOnT73F5fysa_tlgbxY";
 
-// Guruh ID (bu guruhga xabar yuborilmaydi)
 const groupChatId = -1002971513569;
 
-// Bot yaratamiz
 const bot = new TelegramBot(token, { polling: false });
 
-// Users.json faylini o'qish
 function loadUsers() {
   try {
     const data = fs.readFileSync("users.json", "utf8");
@@ -22,7 +18,6 @@ function loadUsers() {
   }
 }
 
-// Xabarni barcha foydalanuvchilarga yuborish
 async function sendMessageToAll(message) {
   const users = loadUsers();
   let successCount = 0;
@@ -33,7 +28,6 @@ async function sendMessageToAll(message) {
   for (const [userId, userData] of Object.entries(users)) {
     const chatId = userData.chatId;
 
-    // Guruhni o'tkazib yuboramiz
     if (chatId === groupChatId) {
       console.log(`⏭️  Guruh o'tkazib yuborildi: ${userData.name || "9 a"}`);
       continue;
@@ -44,7 +38,6 @@ async function sendMessageToAll(message) {
       console.log(`✅ Yuborildi: ${userData.name || chatId}`);
       successCount++;
       
-      // Har bir xabar o'rtasida kichik pauza (flood protection)
       await new Promise(resolve => setTimeout(resolve, 100));
     } catch (error) {
       console.error(`❌ Xato (${userData.name || chatId}):`, error.message);
@@ -60,7 +53,6 @@ async function sendMessageToAll(message) {
   console.log("=".repeat(50) + "\n");
 }
 
-// Terminaldan xabar olish
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,

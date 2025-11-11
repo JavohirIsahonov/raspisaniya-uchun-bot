@@ -1,14 +1,4 @@
 {
-  "993488392": {
-    "chatId": 993488392,
-    "waitingForName": false,
-    "name": "meng ismim sofiya"
-  },
-  "1681003987": {
-    "chatId": 1681003987,
-    "waitingForName": false,
-    "name": "Umida"
-  },
   "6355954239": {
   "chatId": 6355954239,
   "waitingForName": false,
@@ -24,20 +14,5 @@
   "waitingForName": false,
   "name": "Bexruz",
   "editingDay": "Payshanba"
-},
-"6624359287": {
-  "chatId": 6624359287,
-  "waitingForName": false,
-  "name": "asa",
-  "editingDay": "Dushanba"
-},
-"5558559138": {
-  "chatId": 5558559138,
-  "waitingForName": true
-},
-"6156895579": {
-  "chatId": 6156895579,
-  "waitingForName": false,
-  "name": "Abduvahob"
 }
 }

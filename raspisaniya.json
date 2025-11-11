@@ -3,49 +3,49 @@
     "Dushanba": [
       "Kelajak soati",
       "Kimyo",
-      "Rus tili",
-      "Algebra",
       "Adabiyot",
-      "Biologiya"
+      "Algebra",
+      "Ona tili",
+      "Ingliz tili"
     ],
     "Seshanba": [
-      "Fizika",
       "Geografiya",
+      "Ingliz tili",
+      "Informatika",
+      "O'zbekiston tarixi",
+      "Fizika",
+      "Jaxon tarixi"
+    ],
+    "Chorshanba": [
+      "Informatika",
+      "Rus tili",
+      "Huquq",
       "Tarbiya",
-      "Biologiya",
       "Algebra",
       "Geometriya"
     ],
-    "Chorshanba": [
-      "Jismoniy tarbiya",
-      "O'zbekiston tarixi",
-      "Ingliz tili",
-      "Ona tili",
-      "Adabiyot",
-      "Jismoniy tarbiya"
-    ],
     "Payshanba": [
+      "O'zbekiston tarixi",
       "Biologiya",
-      "Adabiyot",
-      "Ingliz tili",
+      "Jismoniy tarbiya",
       "Ona tili",
-      "Jahon tarixi",
-      "Chizmachilik/texnalogiya"
-    ],
-    "Juma": [
-      "Algebra",
-      "Kimyo",
-      "Informmatika",
-      "Rus tili",
-      "Geometriya",
+      "Adabiyot",
       "Fizika"
     ],
-    "Shanba": [
-      "Informmatika",
-      "Ingliz tili",
-      "O'zbekiston tarixi",
+    "Juma": [
       "Kimyo",
-      "Geografiya/Iqtisodiyot",
+      "Chizmachilik/Geografiya",
+      "Rus tili",
+      "Ona tili",
+      "Biologiya",
+      "Jismoniy tarbiya"
+    ],
+    "Shanba": [
+      "Geometriya",
+      "Algebra",
+      "Kimyo",
+      "Biologiya",
+      "Ingliz tili/Iqtisodiyot",
       "Huquq"
     ]
   }

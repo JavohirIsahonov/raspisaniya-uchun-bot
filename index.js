@@ -6,12 +6,10 @@ const cron = require('node-cron');
 const token = '8234260460:AAGtMKfgmDt4Q7rFEOnT73F5fysa_tlgbxY';
 const bot = new TelegramBot(token, { polling: true });
 
-// Fayllar yo'li
 const scheduleFile = path.join(__dirname, 'raspisaniya.json');
 const usersFile = path.join(__dirname, 'users.json');
 const adminsFile = path.join(__dirname, 'admins.json');
 
-// Foydalanuvchilar ma'lumotlarini yuklash
 function loadUsers() {
     try {
         const data = fs.readFileSync(usersFile, 'utf8');
@@ -22,7 +20,6 @@ function loadUsers() {
     }
 }
 
-// Adminlar ma'lumotlarini yuklash
 function loadAdmins() {
     try {
         const data = fs.readFileSync(adminsFile, 'utf8');
@@ -33,7 +30,6 @@ function loadAdmins() {
     }
 }
 
-// Foydalanuvchilar ma'lumotlarini saqlash
 function saveUsers(users) {
     try {
         fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf8');
@@ -44,7 +40,6 @@ function saveUsers(users) {
     }
 }
 
-// Adminlar ma'lumotlarini saqlash
 function saveAdmins(admins) {
     try {
         fs.writeFileSync(adminsFile, JSON.stringify(admins, null, 2), 'utf8');
@@ -55,11 +50,9 @@ function saveAdmins(admins) {
     }
 }
 
-// Foydalanuvchilarni yuklash
 let users = loadUsers();
 let admins = loadAdmins();
 
-// Admin ekanligini tekshirish
 function isAdmin(userId) {
     return admins[userId] !== undefined;
 }
@@ -84,7 +77,6 @@ function saveSchedule(schedule) {
     }
 }
 
-// Vaqt soatini tekshirish funksiyalari
 function getCurrentHour() {
     const now = new Date();
     return now.getHours();
@@ -92,12 +84,12 @@ function getCurrentHour() {
 
 function isSchoolTimeForToday() {
     const hour = getCurrentHour();
-    return hour >= 3 && hour < 9; // 03:00 - 09:00
+    return hour >= 3 && hour < 9;
 }
 
 function isTimeForTomorrow() {
     const hour = getCurrentHour();
-    return hour >= 13 && hour <= 23; // 13:05 - 23:59
+    return hour >= 13 && hour <= 23;
 }
 
 function getDayName(dayIndex) {
@@ -134,7 +126,6 @@ function getTomorrowSchedule() {
     return null;
 }
 
-// Jadval formatini tayyorlash (faqat fanlar)
 function formatScheduleSimple(scheduleData) {
     if (!scheduleData) {
         return 'Bugun dars yo\'q! 🎉';
@@ -148,7 +139,6 @@ function formatScheduleSimple(scheduleData) {
     return message;
 }
 
-// Adminlar uchun asosiy menyu
 function getAdminMainKeyboard() {
     return {
         keyboard: [
@@ -159,7 +149,6 @@ function getAdminMainKeyboard() {
     };
 }
 
-// Admin paneli tugmalari (huquqlarga qarab)
 function getAdminPanelKeyboard(userId) {
     const admin = admins[userId];
     const buttons = [];
@@ -181,7 +170,6 @@ function getAdminPanelKeyboard(userId) {
     };
 }
 
-// Oddiy foydalanuvchilar uchun dars jadvali yuborish
 function sendScheduleToUser(chatId, userName) {
     if (isSchoolTimeForToday()) {
         const todaySchedule = getTodaySchedule();
@@ -204,12 +192,10 @@ function sendScheduleToUser(chatId, userName) {
     }
 }
 
-// /start buyrug'i
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     const userId = msg.from.id;
     
-    // Admin tekshiruvi
     if (isAdmin(userId)) {
         const admin = admins[userId];
         const welcomeMessage = `Assalomu alaykum, ${admin.name}! 👋\n\nSiz admin sifatida tizimga kirdingiz.`;
@@ -219,34 +205,28 @@ bot.onText(/\/start/, (msg) => {
         return;
     }
     
-    // Oddiy foydalanuvchilar uchun
     const existingUser = Object.values(users).find(user => user.chatId === chatId);
     
     if (existingUser) {
         sendScheduleToUser(chatId, existingUser.name);
     } else {
-        // Yangi foydalanuvchi
         users[userId] = { chatId: chatId, waitingForName: true };
         bot.sendMessage(chatId, 'Assalomu alaykum! Iltimos, ismingizni kiriting:');
     }
 });
 
-// Xabarlarni qayta ishlash
 bot.on('message', (msg) => {
     const chatId = msg.chat.id;
     const userId = msg.from.id;
     const text = msg.text;
     
-    // Buyruqlarni ignore qilish
     if (text && text.startsWith('/')) return;
     
-    // Admin ekanligi tekshiruvi
     if (isAdmin(userId)) {
         handleAdminMessage(msg);
         return;
     }
     
-    // Oddiy foydalanuvchilar uchun
     if (users[userId] && users[userId].waitingForName) {
         users[userId].name = text;
         users[userId].waitingForName = false;
@@ -257,41 +237,15 @@ bot.on('message', (msg) => {
         bot.sendMessage(chatId, welcomeMessage);
         
         sendScheduleToUser(chatId, text);
-    } else if (users[userId] && users[userId].editingDay && !users[userId].waitingForName) {
-        const day = users[userId].editingDay;
-        const newSubjects = text.split('\n').filter(subject => subject.trim() !== '');
-        
-        const schedule = loadSchedule();
-        if (!schedule['9A']) schedule['9A'] = {};
-        
-        schedule['9A'][day] = newSubjects;
-        
-        if (saveSchedule(schedule)) {
-            bot.sendMessage(chatId, `✅ ${day} kunining jadvali muvaffaqiyatli yangilandi!`);
-            
-            const updatedScheduleData = {
-                day: day,
-                subjects: newSubjects
-            };
-            const simpleSchedule = formatScheduleSimple(updatedScheduleData);
-            bot.sendMessage(chatId, `${day} kuni yangi jadvali:\n\n${simpleSchedule}`);
-        } else {
-            bot.sendMessage(chatId, '❌ Jadvalni saqlashda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
-        }
-        
-        delete users[userId].editingDay;
-        saveUsers(users);
     }
 });
 
-// Admin xabarlarini qayta ishlash
 function handleAdminMessage(msg) {
     const chatId = msg.chat.id;
     const userId = msg.from.id;
     const text = msg.text;
     const admin = admins[userId];
     
-    // Admin state tekshiruvi
     if (admin.waitingForAdminId) {
         handleNewAdminId(chatId, userId, text);
         return;
@@ -302,7 +256,6 @@ function handleAdminMessage(msg) {
         return;
     }
     
-    // Menu tugmalari
     switch (text) {
         case '👨‍💼 Admin paneli':
             bot.sendMessage(chatId, 'Admin paneli:', {
@@ -340,7 +293,6 @@ function handleAdminMessage(msg) {
     }
 }
 
-// Kun tanlash menyusini ko'rsatish
 function showDaySelector(chatId, userId, prefix) {
     const keyboard = {
         reply_markup: {
@@ -358,7 +310,6 @@ function showDaySelector(chatId, userId, prefix) {
     bot.sendMessage(chatId, 'Qaysi kunning jadvalini o\'zgartirmoqchisiz?', keyboard);
 }
 
-// Yangi admin ID ni qayta ishlash
 function handleNewAdminId(chatId, userId, text) {
     const newAdminId = text.trim();
     
@@ -367,7 +318,6 @@ function handleNewAdminId(chatId, userId, text) {
         return;
     }
     
-    // Admin allaqachon mavjudligini tekshirish
     if (admins[newAdminId]) {
         bot.sendMessage(chatId, '❌ Bu foydalanuvchi allaqachon admin!');
         admins[userId].waitingForAdminId = false;
@@ -375,13 +325,11 @@ function handleNewAdminId(chatId, userId, text) {
         return;
     }
     
-    // Yangi admin ma'lumotlarini saqlash
     admins[userId].newAdminId = newAdminId;
     admins[userId].waitingForAdminId = false;
     
     saveAdmins(admins);
-    
-    // Huquqlarni tanlash
+
     const keyboard = {
         reply_markup: {
             inline_keyboard: [
@@ -401,7 +349,6 @@ function handleNewAdminId(chatId, userId, text) {
     bot.sendMessage(chatId, 'Qaysi huquqlarni berasiz?\n(Bir nechta tanlashingiz mumkin)', keyboard);
 }
 
-// Dars jadvalini tahrirlash
 function handleScheduleEdit(chatId, userId, text) {
     const admin = admins[userId];
     const day = admin.editingDay;
@@ -428,19 +375,16 @@ function handleScheduleEdit(chatId, userId, text) {
     delete admin.editingDay;
     saveAdmins(admins);
     
-    // Admin menyuga qaytish
     bot.sendMessage(chatId, 'Asosiy menyu:', {
         reply_markup: getAdminMainKeyboard()
     });
 }
 
-// Callback querylarni qayta ishlash
 bot.on('callback_query', (callbackQuery) => {
     const chatId = callbackQuery.message.chat.id;
     const userId = callbackQuery.from.id;
     const data = callbackQuery.data;
     
-    // Admin dars jadvalini o'zgartirish
     if (data.startsWith('admin_edit_')) {
         const day = data.replace('admin_edit_', '');
         const schedule = loadSchedule();
@@ -464,7 +408,6 @@ bot.on('callback_query', (callbackQuery) => {
         }
     }
     
-    // Huquqlarni tanlash
     if (data.startsWith('perm_')) {
         const admin = admins[userId];
         
@@ -534,7 +477,6 @@ bot.on('callback_query', (callbackQuery) => {
                 return;
             }
             
-            // Yangi adminni yaratish
             admins[newAdminId] = {
                 chatId: parseInt(newAdminId),
                 name: 'Yangi admin',
@@ -542,7 +484,6 @@ bot.on('callback_query', (callbackQuery) => {
                 canCreateAdmin: permissions.canCreateAdmin
             };
             
-            // Tozalash
             delete admin.newAdminId;
             delete admin.newAdminPermissions;
             
@@ -554,7 +495,6 @@ bot.on('callback_query', (callbackQuery) => {
             
             bot.sendMessage(chatId, `✅ Yangi admin muvaffaqiyatli yaratildi!\n\nAdmin ID: ${newAdminId}\n${permissionsText}\n\nAdmin /start buyrug'ini yuborib tizimga kirishi mumkin.`);
             
-            // Admin menyuga qaytish
             bot.sendMessage(chatId, 'Asosiy menyu:', {
                 reply_markup: getAdminMainKeyboard()
             });
@@ -564,7 +504,6 @@ bot.on('callback_query', (callbackQuery) => {
     bot.answerCallbackQuery(callbackQuery.id);
 });
 
-// Avtomatik jadval yuborish - har kuni 06:30 da bugungi jadval (Toshkent vaqti bo'yicha)
 cron.schedule('30 6 * * *', () => {
     console.log('Ertalabki jadval yuborilmoqda...');
     const todaySchedule = getTodaySchedule();
@@ -572,7 +511,6 @@ cron.schedule('30 6 * * *', () => {
     if (todaySchedule) {
         const message = '🌅 Xayrli tong! Bugungi dars jadvali:\n\n' + formatScheduleSimple(todaySchedule);
         
-        // Barcha foydalanuvchilarga yuborish
         Object.values(users).forEach(user => {
             if (user.name && user.chatId) {
                 bot.sendMessage(user.chatId, message);
@@ -583,7 +521,6 @@ cron.schedule('30 6 * * *', () => {
     timezone: 'Asia/Tashkent'
 });
 
-// Avtomatik jadval yuborish - har kuni 19:00 da ertangi jadval
 cron.schedule('0 19 * * *', () => {
     console.log('Kechki jadval yuborilmoqda...');
     const tomorrowSchedule = getTomorrowSchedule();
@@ -591,7 +528,6 @@ cron.schedule('0 19 * * *', () => {
     if (tomorrowSchedule) {
         const message = '🌙 Kechki salom! Ertangi kun uchun dars jadvali:\n\n' + formatScheduleSimple(tomorrowSchedule);
         
-        // Barcha foydalanuvchilarga yuborish
         Object.values(users).forEach(user => {
             if (user.name && user.chatId) {
                 bot.sendMessage(user.chatId, message);
@@ -602,7 +538,6 @@ cron.schedule('0 19 * * *', () => {
     timezone: 'Asia/Tashkent'
 });
 
-// Avtomatik jadval yuborish - har kuni 14:00 da ertangi jadval
 cron.schedule('0 14 * * *', () => {
     console.log('14:00 da ertangi jadval yuborilmoqda...');
     const tomorrowSchedule = getTomorrowSchedule();
@@ -610,7 +545,6 @@ cron.schedule('0 14 * * *', () => {
     if (tomorrowSchedule) {
         const message = '📅 Ertangi kun uchun dars jadvali:\n\n' + formatScheduleSimple(tomorrowSchedule);
         
-        // Barcha foydalanuvchilarga yuborish
         Object.values(users).forEach(user => {
             if (user.name && user.chatId) {
                 bot.sendMessage(user.chatId, message);

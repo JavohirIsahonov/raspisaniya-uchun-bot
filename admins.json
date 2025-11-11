@@ -5,11 +5,5 @@
     "canEditSchedule": true,
     "canCreateAdmin": true,
     "waitingForAdminId": false
-  },
-  "6156895579": {
-    "chatId": 6156895579,
-    "name": "Yangi admin",
-    "canEditSchedule": true,
-    "canCreateAdmin": false
   }
 }
